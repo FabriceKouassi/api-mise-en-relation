@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Enums\Roles;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -11,7 +12,7 @@ class RegisterRequest extends FormRequest
     
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     public function rules(): array
@@ -19,10 +20,16 @@ class RegisterRequest extends FormRequest
         return [
             'lastName' => 'required|string',
             'firstName' => 'required|string',
+            'slug' => 'nullable',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'phone' => 'required|unique:users,phone',
-            'email' => 'sometimes|email|unique:users,email',
-            'role' => 'required',
+            'email' => 'nullable|email|unique:users,email',
             'password' => 'required|max:18|min:8',
+            'role' => ['required', 'string', function ($attribute, $value, $fail) {
+                if (!in_array($value, Roles::all())) {
+                    $fail('Le role selectionné est invalide');
+                }
+            }],
         ];
     }
 
@@ -34,11 +41,15 @@ class RegisterRequest extends FormRequest
             'firstName.required' => 'Le prenoms est obligatoire',
             'firstName.string' => 'Le prenoms dois être une chaine de caractères',
             'phone.required' => 'Le contact est obligatoire',
-            'phone.unique' => 'Ce contact est déjà enregistré',
+            'phone.unique' => 'Ce contact existe déjà',
+            'email.unique' => 'Ce email existe déjà',
+            'email.email' => 'Veuillez saisir un email valide',
             'role.required' => 'Le role est obligatoire',
             'password.required' => 'Le mot de passe est obligatoire',
             'password.max' => 'Le mot de passe ne dois pas exédé 18 caractères',
             'password.min' => 'Le mot de passe ne dois pas être en dessous de 8 caractères',
+            'img.image' => 'Une image est obligatoire',
+            'img.mimes' => 'L\'image choisie dois être de type: jpeg, png, jpg, gif ou svg',
         ];
     }
 

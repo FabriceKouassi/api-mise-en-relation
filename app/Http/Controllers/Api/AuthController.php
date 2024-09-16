@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -43,13 +46,66 @@ class AuthController extends Controller
         $credentials = $request->validated();
         $credentials['password'] = Hash::make($credentials['password']);
 
-        User::query()->create($credentials);
+        $user = User::query()->create($credentials);
+
+        $lastName = $user->lastName ?? '';
+        $firstName = $user->firstName ?? '';
+        $userId = $user->id ?? '';
+
+        $user->slug = Str::slug($lastName . '-' . $firstName . '-' . $userId, '-');
+
+        if($request->hasFile('img')){
+            
+            try {
+                $img = $request->file('img');
+                $filename = time() . '-' . $img->getClientOriginalName();
+                // $img->move(storage_path(config('global.user_image'), $filename));
+                // $img->move(public_path('storage/'). config('global.user_image'), $filename);
+
+                $img->storeAs(config('global.user_image'), $filename, 'public');
+
+                $user->img = $filename;
+
+            } catch (\Exception $e) {
+
+                Log::error('Erreur lors du traitement de l\'image', ['error' => $e->getMessage()]);
+
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Erreur lors du traitement de l\'image',
+                ], 500);
+
+            }
+        }
+
+        $user->save();
 
         return response()->json([
             'status' => 'success',
             'message' => 'Utilisateur enregistré',
+            'data' => $user,
         ], 201);
     }
 
+    public function logout()
+    {
+        try {
+            $user = Auth::user();
+    
+            $user->tokens()->delete();
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Déconnexion réussie'
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la déconnexion', ['error' => $e->getMessage()]);
+    
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Erreur lors de la déconnexion'
+            ], 500);
+        }
+    }
 
 }

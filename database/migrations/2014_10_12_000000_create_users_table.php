@@ -16,9 +16,11 @@ return new class extends Migration
             $table->id();
             $table->string('lastName');
             $table->string('firstName');
+            $table->string('slug')->nullable();
+            $table->string('img')->nullable();
             $table->string('phone')->unique();
-            $table->string('email')->unique();
-            $table->enum('role', Roles::all())->nullable();
+            $table->string('email')->unique()->nullable();
+            $table->enum('role', Roles::all());
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
