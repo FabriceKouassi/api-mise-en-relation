@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::controller(AuthController::class)
     ->group(function () {
         Route::post('login', 'login');
+        Route::get('loginFail', 'loginFail')->name('loginFail');
         Route::post('register', 'register');
         Route::get('logout/{user}', 'logout')->middleware('auth:sanctum');
     });
@@ -31,7 +32,8 @@ Route::middleware('auth:sanctum', 'timeout')
                 Route::post('/logout', 'logout');
             });
             Route::controller(UserController::class)->group(function () {
-                Route::get('/', 'index');
+                Route::get('/', 'all');
+                Route::post('/update/{slug}', 'update');
             });
         });
 

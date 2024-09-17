@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
-use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -106,6 +105,14 @@ class AuthController extends Controller
                 'message' => 'Erreur lors de la déconnexion'
             ], 500);
         }
+    }
+
+    protected function loginFail()
+    {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Erreur de connexion, veuillez vous authentifié.'
+        ], 401);
     }
 
 }
