@@ -39,7 +39,31 @@ class UserController extends Controller
             $userId = $user->id ?? '';
 
             $user->slug = Str::slug($lastName . '-' . $firstName . '-' . $userId, '-');
+            if($request->hasFile('img')){
+            
+                try {
 
+                    unlink(storage_path(config('global.user_image').'/'.$user->img));
+
+                    $img = $request->file('img');
+                    $filename = time() . '-' . $img->getClientOriginalName();
+    
+                    $img->storeAs(config('global.user_image'), $filename, 'public');
+    
+                    $user->img = $filename;
+    
+                } catch (\Exception $e) {
+    
+                    Log::error('Erreur lors du traitement de l\'image', ['error' => $e->getMessage()]);
+    
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Erreur lors du traitement de l\'image',
+                    ], 500);
+    
+                }
+            }
+            
             $user->update($data);
 
             return response()->json([
