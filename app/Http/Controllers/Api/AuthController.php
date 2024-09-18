@@ -97,6 +97,7 @@ class AuthController extends Controller
                 'status' => 'success',
                 'message' => 'Déconnexion réussie'
             ], 200);
+            
         } catch (\Exception $e) {
             Log::error('Erreur lors de la déconnexion', ['error' => $e->getMessage()]);
     

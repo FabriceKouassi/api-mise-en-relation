@@ -21,20 +21,19 @@ Route::controller(AuthController::class)
         Route::post('login', 'login');
         Route::get('loginFail', 'loginFail')->name('loginFail');
         Route::post('register', 'register');
-        Route::get('logout/{user}', 'logout')->middleware('auth:sanctum');
+        Route::post('logout', 'logout')->middleware('auth:sanctum');
     });
 
 Route::middleware('auth:sanctum', 'timeout')
     ->group(function () {
-        
+
+        //User
         Route::prefix('users')->group(function () {
-            Route::controller(AuthController::class)->group(function () {
-                Route::post('/logout', 'logout');
-            });
             Route::controller(UserController::class)->group(function () {
                 Route::get('/', 'all');
                 Route::post('/update/{slug}', 'update');
             });
         });
+        
 
     });
