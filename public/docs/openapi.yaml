@@ -1,0 +1,167 @@
+openapi: 3.0.3
+info:
+  title: Laravel
+  description: ''
+  version: 1.0.0
+servers:
+  -
+    url: 'http://mise-en-relation.com'
+paths:
+  /api/login:
+    post:
+      summary: ''
+      operationId: postApiLogin
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                login:
+                  type: string
+                  description: ''
+                  example: quidem
+                password:
+                  type: string
+                  description: ''
+                  example: consequatur
+              required:
+                - login
+                - password
+      security: []
+  /api/register:
+    post:
+      summary: ''
+      operationId: postApiRegister
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                lastName:
+                  type: string
+                  description: ''
+                  example: et
+                firstName:
+                  type: string
+                  description: ''
+                  example: at
+                slug:
+                  type: string
+                  description: ''
+                  example: null
+                img:
+                  type: string
+                  format: binary
+                  description: 'Must be an image. Must not be greater than 2048 kilobytes.'
+                phone:
+                  type: string
+                  description: ''
+                  example: iste
+                email:
+                  type: string
+                  description: 'Must be a valid email address.'
+                  example: joshua.nolan@example.net
+                password:
+                  type: string
+                  description: 'Must not be greater than 18 characters. Must be at least 8 characters.'
+                  example: '<jdr55>aR0<C&ZGfH]2'
+                role:
+                  type: string
+                  description: ''
+                  example: reprehenderit
+              required:
+                - lastName
+                - firstName
+                - phone
+                - password
+                - role
+      security: []
+  /api/logout:
+    post:
+      summary: ''
+      operationId: postApiLogout
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+  '/api/users/update/{slug}':
+    post:
+      summary: ''
+      operationId: postApiUsersUpdateSlug
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                lastName:
+                  type: string
+                  description: ''
+                  example: accusantium
+                firstName:
+                  type: string
+                  description: ''
+                  example: veniam
+                slug:
+                  type: string
+                  description: ''
+                  example: null
+                img:
+                  type: string
+                  format: binary
+                  description: 'Must be an image. Must not be greater than 2048 kilobytes.'
+                phone:
+                  type: string
+                  description: ''
+                  example: null
+                email:
+                  type: string
+                  description: 'Must be a valid email address.'
+                  example: kschneider@example.net
+                password:
+                  type: string
+                  description: 'Must not be greater than 18 characters. Must be at least 8 characters.'
+                  example: '3D"hlGeD^?hU=w''nX?'
+                role:
+                  type: string
+                  description: ''
+                  example: neque
+              required:
+                - lastName
+                - firstName
+      security: []
+    parameters:
+      -
+        in: path
+        name: slug
+        description: 'The slug of the update.'
+        example: molestiae
+        required: true
+        schema:
+          type: string
+tags:
+  -
+    name: Endpoints
+    description: ''

@@ -30,7 +30,7 @@ Route::middleware('auth:sanctum', 'timeout')
         //User
         Route::prefix('users')->group(function () {
             Route::controller(UserController::class)->group(function () {
-                Route::get('/', 'all');
+                Route::get('/all', 'all');
                 Route::post('/update/{slug}', 'update');
             });
         });
