@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateCategorieRequest extends FormRequest
 {
@@ -31,5 +33,13 @@ class UpdateCategorieRequest extends FormRequest
             'libelle.unique' => 'Ce libelle existe déjà',
             'description.string' => 'La description dois être une chaine de caractères',
         ];
+    }
+    
+    protected function failedValidation(Validator $validator): void
+    {
+        throw new HttpResponseException(response()->json([
+            'status' => 'failed',
+            'response' => $validator->errors()
+        ], 422));
     }
 }

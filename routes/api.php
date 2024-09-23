@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CategorieController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -27,7 +28,6 @@ Route::controller(AuthController::class)
 Route::middleware('auth:sanctum', 'timeout')
     ->group(function () {
 
-        //User
         Route::prefix('users')->group(function () {
             Route::controller(UserController::class)->group(function () {
                 Route::get('/all', 'all');
@@ -35,5 +35,13 @@ Route::middleware('auth:sanctum', 'timeout')
             });
         });
         
+        Route::prefix('categories')->group(function () {
+            Route::controller(CategorieController::class)->group(function () {
+                Route::get('/all', 'all');
+                Route::post('/create', 'create');
+                Route::post('/update/{slug}', 'update');
+                Route::post('/delete/{id}', 'delete');
+            });
+        });
 
     });

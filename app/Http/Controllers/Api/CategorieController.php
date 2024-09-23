@@ -87,6 +87,13 @@ class CategorieController extends Controller
     {
         $categorie = Categorie::query()->where('id', $id)->first();
         
+        if (!$categorie) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Catégorie non retrouvée'
+            ]);
+        }
+        
         try {
             $categorie->delete();
 
@@ -105,6 +112,5 @@ class CategorieController extends Controller
             ], 401);
         }
     }
-
 
 }
