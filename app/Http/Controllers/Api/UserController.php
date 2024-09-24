@@ -20,6 +20,22 @@ class UserController extends Controller
         ], 200);
     }
 
+    public function show(string $slug)
+    {
+        $user = User::query()->where('slug', $slug)->first();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Utilisateur non retrouvé'
+            ]);
+        }
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => $user
+        ], 201);
+    }
+
     public function update(UpdateUserRequest $request, string $slug)
     {
         try {
@@ -70,7 +86,7 @@ class UserController extends Controller
                 'status' => 'success',
                 'message' => 'Modification effectuée',
                 'data' => $user
-            ], 200);
+            ], 201);
 
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -81,5 +97,36 @@ class UserController extends Controller
             ], 422);
         }
         
+    }
+
+    public function delete (string $slug)
+    {
+        $user = User::query()->where('slug', $slug)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Utilisateur non retrouvé'
+            ]);
+        }
+
+        try {
+
+            $user->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Suppression effectuée'
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            Log::error('Erreur lors de la suppression de l\'utilisateur' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Une erreur s\'est produite lors de la suppression',
+                'error' => $e->getMessage()
+            ], 401);
+
+        }
     }
 }

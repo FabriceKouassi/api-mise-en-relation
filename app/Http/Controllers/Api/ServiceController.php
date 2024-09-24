@@ -3,29 +3,29 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CreateCategorieRequest;
-use App\Http\Requests\UpdateCategorieRequest;
-use App\Models\Categorie;
+use App\Http\Requests\CreateServiceRequest;
+use App\Http\Requests\UpdateServiceRequest;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class CategorieController extends Controller
+class ServiceController extends Controller
 {
     public function all()
     {
-        $categories = Categorie::query()->oldest('libelle')->paginate(15);
+        $services = Service::query()->oldest('libelle')->paginate(15);
 
         return response()->json([
             'status' => 'success',
-            'data' => $categories
+            'data' => $services
         ], 201);
     }
 
     public function show(string $slug)
     {
-        $categories = Categorie::query()->where('slug', $slug)->first();
-        if (!$categories) {
+        $services = Service::query()->where('slug', $slug)->first();
+        if (!$services) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Catégorie non retrouvée'
@@ -34,11 +34,11 @@ class CategorieController extends Controller
         
         return response()->json([
             'status' => 'success',
-            'data' => $categories
+            'data' => $services
         ], 201);
     }
 
-    public function create(CreateCategorieRequest $request)
+    public function create(CreateServiceRequest $request)
     {
         $data = $request->validated();
 
@@ -46,31 +46,31 @@ class CategorieController extends Controller
             
             $data['slug'] = Str::slug($data['libelle'], '-');
 
-            $categorie = Categorie::query()->create($data);
+            $service = Service::query()->create($data);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Enregistrement effectué',
-                'data' => $categorie
+                'data' => $service
             ], 201);
 
         } catch (\Exception $e) {
-            Log::error('Erreur lors de la creation de la categorie', $e->getMessage());
+            Log::error('Erreur lors de la creation du service', $e->getMessage());
 
             return response()->json([
                 'status' => 'Error',
-                'message' => 'Erreur lors de la creation de la categorie',
+                'message' => 'Erreur lors de la creation du service',
                 'error' => $e->getMessage()
-            ], 404);
+            ], 401);
         }
     }
 
-    public function update(UpdateCategorieRequest $request, string $slug)
-    {   
+    public function update(UpdateServiceRequest $request, string $slug)
+    {
         $data = $request->validated();
-        $categorie = Categorie::query()->where('slug', $slug)->first();
+        $service = Service::query()->where('slug', $slug)->first();
         
-        if (!$categorie) {
+        if (!$service) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Catégorie non retrouvée'
@@ -78,33 +78,32 @@ class CategorieController extends Controller
         }
 
         try {
+            $service->slug = Str::slug($data['libelle'], '-');
 
-            $categorie->slug = Str::slug($data['libelle'], '-');
-
-            $categorie->update($data);
+            $service->update($data);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Modification effectuée',
-                'data' => $categorie
-            ], 200);
+                'data' => $service
+            ], 201);
 
         } catch (\Exception $e) {
-            Log::error('Erreur lors de la modification de la categorie'. $e->getMessage());
+            Log::error('Erreur lors de la modification du service', $e->getMessage());
 
             return response()->json([
                 'status' => 'Error',
-                'message' => 'Erreur lors de la modification de la categorie',
+                'message' => 'Erreur lors de la modification du service',
                 'error' => $e->getMessage()
-            ], 500);
+            ], 401);
         }
     }
 
     public function delete(int $id)
     {
-        $categorie = Categorie::query()->where('id', $id)->first();
+        $service = Service::query()->where('id', $id)->first();
         
-        if (!$categorie) {
+        if (!$service) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Catégorie non retrouvée'
@@ -112,7 +111,7 @@ class CategorieController extends Controller
         }
         
         try {
-            $categorie->delete();
+            $service->delete();
 
             return response()->json([
                 'status' => 'success',
@@ -120,14 +119,13 @@ class CategorieController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
-            Log::error('Erreur lors de la supression de la categorie', $e->getMessage());
+            Log::error('Erreur lors du supression du service', $e->getMessage());
 
             return response()->json([
                 'status' => 'Error',
-                'message' => 'Erreur lors de la supression de la categorie',
+                'message' => 'Erreur lors du supression du service',
                 'error' => $e->getMessage()
             ], 401);
         }
     }
-
 }

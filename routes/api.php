@@ -31,17 +31,32 @@ Route::middleware('auth:sanctum', 'timeout')
         Route::prefix('users')->group(function () {
             Route::controller(UserController::class)->group(function () {
                 Route::get('/all', 'all');
+                Route::get('/show/{slug}', 'show');
                 Route::post('/update/{slug}', 'update');
+                Route::delete('/delete/{slug}', 'delete');
             });
         });
         
         Route::prefix('categories')->group(function () {
             Route::controller(CategorieController::class)->group(function () {
                 Route::get('/all', 'all');
+                Route::get('/show/{slug}', 'show');
                 Route::post('/create', 'create');
                 Route::post('/update/{slug}', 'update');
-                Route::post('/delete/{id}', 'delete');
+                Route::delete('/delete/{id}', 'delete');
             });
         });
+        
+        
+        Route::prefix('services')->group(function () {
+            Route::controller(CategorieController::class)->group(function () {
+                Route::get('/all', 'all');
+                Route::get('/show/{slug}', 'show');
+                Route::post('/create', 'create');
+                Route::post('/update/{slug}', 'update');
+                Route::delete('/delete/{id}', 'delete');
+            });
+        });
+        
 
     });
