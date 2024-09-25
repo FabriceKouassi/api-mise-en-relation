@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
+use App\Models\Categorie;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +15,7 @@ class ServiceController extends Controller
 {
     public function all()
     {
-        $services = Service::query()->oldest('libelle')->paginate(15);
+        $services = Service::query()->oldest('title')->paginate(15);
 
         return response()->json([
             'status' => 'success',
@@ -24,27 +25,37 @@ class ServiceController extends Controller
 
     public function show(string $slug)
     {
-        $services = Service::query()->where('slug', $slug)->first();
-        if (!$services) {
+        $service = Service::query()->where('slug', $slug)->first();
+        if (!$service === null) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Catégorie non retrouvée'
-            ]);
+                'message' => 'Service non retrouvée'
+            ], 404);
         }
         
         return response()->json([
             'status' => 'success',
-            'data' => $services
+            'data' => $service
         ], 201);
     }
 
     public function create(CreateServiceRequest $request)
     {
         $data = $request->validated();
+        
+        $categorie = Categorie::query()->where('id', $data['categorie_id'])->first();
 
+        if ($categorie === null)
+        {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Cette categorie est introuvable'
+            ], 404);
+        }
+        
         try {
             
-            $data['slug'] = Str::slug($data['libelle'], '-');
+            $data['slug'] = Str::slug($data['title'], '-');
 
             $service = Service::query()->create($data);
 
@@ -69,16 +80,25 @@ class ServiceController extends Controller
     {
         $data = $request->validated();
         $service = Service::query()->where('slug', $slug)->first();
-        
-        if (!$service) {
+        $categorie = Categorie::query()->where('id', $data['categorie_id'])->first();
+
+        if ($categorie === null)
+        {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Cette categorie est introuvable'
+            ], 404);
+        }
+
+        if ($service === null) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Catégorie non retrouvée'
-            ]);
+                'message' => 'Service non retrouvé'
+            ], 404);
         }
 
         try {
-            $service->slug = Str::slug($data['libelle'], '-');
+            $service->slug = Str::slug($data['title'], '-');
 
             $service->update($data);
 
@@ -102,11 +122,10 @@ class ServiceController extends Controller
     public function delete(int $id)
     {
         $service = Service::query()->where('id', $id)->first();
-        
-        if (!$service) {
+        if ($service === null) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Catégorie non retrouvée'
+                'message' => 'Service non retrouvé'
             ]);
         }
         

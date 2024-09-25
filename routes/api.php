@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategorieController;
+use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -49,7 +50,7 @@ Route::middleware('auth:sanctum', 'timeout')
         
         
         Route::prefix('services')->group(function () {
-            Route::controller(CategorieController::class)->group(function () {
+            Route::controller(ServiceController::class)->group(function () {
                 Route::get('/all', 'all');
                 Route::get('/show/{slug}', 'show');
                 Route::post('/create', 'create');
