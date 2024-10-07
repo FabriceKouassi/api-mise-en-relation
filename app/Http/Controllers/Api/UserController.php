@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Enums\Roles;
+use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Models\Service;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -33,6 +37,60 @@ class UserController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $user
+        ], 201);
+    }
+
+    public function register(CreateUserRequest $request)
+    {
+        $data = $request->validated();
+        $data['password'] = Hash::make($data['password']);
+
+        $lastName = $data['lastName'] ?? '';
+        $firstName = $data['firstName'] ?? '';
+
+        $user = User::query()->create($data);
+        $user->slug = Str::slug($lastName . '-' . $firstName . '-' . time(), '-');
+
+        if ($data['role'] === Roles::PRESTATAIRE && $request->has('services'))
+        {
+            if (is_array($data['services'])) {
+                $user->services()->attach($data['services']);
+            } else {
+                return response()->json([
+                    'status' => 'Error',
+                    'message' => 'Les services doivent être un tableau d\'identifiants valides.'
+                ], 400);
+            }
+        }
+        
+        if($request->hasFile('img')){
+
+            try {
+                $img = $request->file('img');
+                $filename = time() . '-' . $img->getClientOriginalName();
+
+                $img->storeAs(config('global.user_image'), $filename, 'public');
+
+                $user->img = $filename;
+
+            } catch (\Exception $e) {
+
+                Log::error('Erreur lors du traitement de l\'image', ['error' => $e->getMessage()]);
+
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Erreur lors du traitement de l\'image',
+                ], 500);
+
+            }
+        }
+
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Utilisateur enregistré',
+            'data' => $user,
         ], 201);
     }
 

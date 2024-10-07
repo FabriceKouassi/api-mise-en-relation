@@ -29,6 +29,9 @@ class AuthController extends Controller
             ], 401);
         }
 
+        $user->last_login = now();
+        $user->save();
+        
         return response()->json([
             'status' => 'success',
             'response' => [
@@ -38,52 +41,6 @@ class AuthController extends Controller
             ]
         ], 201);
         
-    }
-
-    public function register(RegisterRequest $request)
-    {
-        $credentials = $request->validated();
-        $credentials['password'] = Hash::make($credentials['password']);
-
-        $user = User::query()->create($credentials);
-
-        $lastName = $user->lastName ?? '';
-        $firstName = $user->firstName ?? '';
-        $userId = $user->id ?? '';
-
-        $user->slug = Str::slug($lastName . '-' . $firstName . '-' . $userId, '-');
-
-        if($request->hasFile('img')){
-            
-            try {
-                $img = $request->file('img');
-                $filename = time() . '-' . $img->getClientOriginalName();
-                // $img->move(storage_path(config('global.user_image'), $filename));
-                // $img->move(public_path('storage/'). config('global.user_image'), $filename);
-
-                $img->storeAs(config('global.user_image'), $filename, 'public');
-
-                $user->img = $filename;
-
-            } catch (\Exception $e) {
-
-                Log::error('Erreur lors du traitement de l\'image', ['error' => $e->getMessage()]);
-
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Erreur lors du traitement de l\'image',
-                ], 500);
-
-            }
-        }
-
-        $user->save();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Utilisateur enregistré',
-            'data' => $user,
-        ], 201);
     }
 
     public function logout()

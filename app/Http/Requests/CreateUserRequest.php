@@ -7,7 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class RegisterRequest extends FormRequest
+class CreateUserRequest extends FormRequest
 {
     
     public function authorize(): bool
@@ -17,20 +17,42 @@ class RegisterRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        if (is_string($this->input('services'))) {
+            $this->merge([
+                'services' => json_decode($this->input('services'), true),
+            ]);
+        }
+        
+        $rules = [
             'lastName' => 'required|string',
             'firstName' => 'required|string',
-            'slug' => 'nullable',
+            'slug' => 'nullable|string',
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'phone' => 'required|unique:users,phone',
             'email' => 'nullable|email|unique:users,email',
             'password' => 'required|max:18|min:8',
-            'role' => ['required', 'string', function ($attribute, $value, $fail) {
-                if (!in_array($value, Roles::all())) {
-                    $fail('Le role selectionné est invalide');
-                }
-            }],
+            'role' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (!in_array($value, Roles::all())) {
+                        $fail('Le rôle sélectionné est invalide');
+                    }
+                },
+            ],
+            'services' => 'nullable|array',
+            'services.*' => 'exists:services,id',
         ];
+        // Règles basées sur le rôle
+        if ($this->input('role') === 'prestataire') {
+            $rules['services'] = 'required|array|min:1'; // Rendre les services obligatoires pour les prestataires
+            $rules['services.*'] = 'exists:services,id'; // Vérifiez que chaque service existe
+            // dd($this->input('role'));
+        } elseif ($this->input('role') === 'demandeur') {
+            $rules['services'] = 'nullable|array'; // Services sont optionnels pour les demandeurs
+        }
+
+        return $rules;
     }
 
     public function messages()
@@ -50,6 +72,11 @@ class RegisterRequest extends FormRequest
             'password.min' => 'Le mot de passe ne dois pas être en dessous de 8 caractères',
             'img.image' => 'Une image est obligatoire',
             'img.mimes' => 'L\'image choisie dois être de type: jpeg, png, jpg, gif ou svg',
+            
+            'services.required' => 'Les services sont requis pour les prestataires.',
+            'services.array' => 'Les services doivent être un tableau.',
+            'services.min' => 'Vous devez sélectionner au moins un service pour les prestataires.',
+            'services.*.exists' => 'Chaque identifiant de service doit exister dans la base de données.',
         ];
     }
 

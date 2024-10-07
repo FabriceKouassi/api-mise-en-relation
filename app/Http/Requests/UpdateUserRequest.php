@@ -29,6 +29,7 @@ class UpdateUserRequest extends FormRequest
                     $fail('Le role selectionné est invalide');
                 }
             }],
+            'service_id' => 'nullable|integer',
         ];
     }
 
@@ -49,6 +50,7 @@ class UpdateUserRequest extends FormRequest
             'password.min' => 'Le mot de passe ne dois pas être en dessous de 8 caractères',
             'img.image' => 'Une image est obligatoire',
             'img.mimes' => 'L\'image choisie dois être de type: jpeg, png, jpg, gif ou svg',
+            'service_id.integer' => 'L\'id du service dois être un entier',
         ];
     }
 

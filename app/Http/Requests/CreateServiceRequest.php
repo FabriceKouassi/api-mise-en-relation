@@ -28,7 +28,7 @@ class CreateServiceRequest extends FormRequest
         return [
             'title.required' => 'Le titre est obligatoire',
             'title.string' => 'Le titre dois être une chaine de caractères',
-            'title.unique' => 'Ce titre existe déjà',
+            'title.unique' => 'Ce service existe déjà',
             'description.string' => 'La description dois être une chaine de caractères',
             'categorie_id.required' => 'L\'id de la categorie est obligatoire',
             'categorie_id.integer' => 'L\'id de la categorie dois être un entier',

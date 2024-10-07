@@ -18,15 +18,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::controller(AuthController::class)
+Route::prefix('/')->group(function () {
+    Route::controller(AuthController::class)
     ->group(function () {
         Route::post('login', 'login');
         Route::get('loginFail', 'loginFail')->name('loginFail');
-        Route::post('register', 'register');
         Route::post('logout', 'logout')->middleware('auth:sanctum');
     });
 
-Route::middleware('auth:sanctum', 'timeout')
+    Route::controller(UserController::class)
+    ->group(function () {
+        Route::post('register', 'register');
+    });
+
+});
+
+Route::middleware('auth:sanctum', 'timeout')->prefix('admin')
     ->group(function () {
 
         Route::prefix('users')->group(function () {
